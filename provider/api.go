@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"sync"
 	"time"
 )
 
@@ -10,6 +11,7 @@ type DataProvider interface {
 }
 
 var sources []Source
+var mutex = sync.RWMutex{}
 
 type Source struct {
 	Name       string
@@ -39,9 +41,13 @@ func Fetch() {
 		}
 		newSources = append(newSources, p.Get()...)
 	}
+	mutex.Lock()
+	defer mutex.Unlock()
 	sources = newSources
 }
 
 func Get() []Source {
+	mutex.RLock()
+	defer mutex.RUnlock()
 	return sources
 }
