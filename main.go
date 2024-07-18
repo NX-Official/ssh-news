@@ -118,7 +118,7 @@ func init() {
 }
 
 var (
-	host = "localhost"
+	host = cmp.Or(os.Getenv("HOST"), "0.0.0.0")
 	port = cmp.Or(os.Getenv("PORT"), "23234")
 )
 
