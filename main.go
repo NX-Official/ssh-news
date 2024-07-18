@@ -62,7 +62,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		switch msg.String() {
 		case "q", "ctrl+c":
 			return m, tea.Quit
-		case "left":
+		case "left", "h":
 			if m.news[m.sources.SelectedItem().(sourcesItem).Title()].Paginator.Page == 0 {
 				m.selected = selectedSources
 				selectedSourcesIdx := m.sources.Index()
@@ -71,7 +71,7 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.sources = newM.sources
 				m.sources.Select(selectedSourcesIdx)
 			}
-		case "right":
+		case "right", "l":
 			if m.selected == selectedSources {
 				m.selected = selectedNews
 				return m, cmd
