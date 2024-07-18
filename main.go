@@ -1,6 +1,7 @@
 package main
 
 import (
+	"cmp"
 	"context"
 	"errors"
 	"github.com/charmbracelet/bubbles/list"
@@ -116,9 +117,9 @@ func init() {
 
 }
 
-const (
+var (
 	host = "localhost"
-	port = "23234"
+	port = cmp.Or(os.Getenv("PORT"), "23234")
 )
 
 func main() {
