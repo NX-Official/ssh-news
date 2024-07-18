@@ -1,7 +1,6 @@
 package provider
 
 import (
-	"log"
 	"time"
 )
 
@@ -32,13 +31,15 @@ var providers = []DataProvider{
 }
 
 func Fetch() {
+	var newSources []Source
 	for _, p := range providers {
 		err := p.Fetch()
 		if err != nil {
-			log.Println(err)
+			// log.Println(err)
 		}
-		sources = append(sources, p.Get()...)
+		newSources = append(newSources, p.Get()...)
 	}
+	sources = newSources
 }
 
 func Get() []Source {

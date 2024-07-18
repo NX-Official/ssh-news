@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/mmcdole/gofeed"
 	"github.com/parnurzeal/gorequest"
-	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -51,6 +50,7 @@ func NewV2EX() DataProvider {
 
 func (v *V2EX) Fetch() error {
 	var returnErrs []error
+	var tmpSources []Source
 	for _, rss := range v.RSS {
 		request := gorequest.New()
 		resp, _, errs := request.Get(rss.url).End()
@@ -73,13 +73,14 @@ func (v *V2EX) Fetch() error {
 				URL:   item.Link,
 			})
 		}
-		v.Sources = append(v.Sources, Source{
+		tmpSources = append(tmpSources, Source{
 			Name:       rss.name,
 			SubTitle:   "",
 			UpdateTime: time.Now(),
 			News:       news,
 		})
 	}
+	v.Sources = tmpSources
 	return errors.Join(returnErrs...)
 }
 
@@ -91,14 +92,14 @@ func (v *V2EX) Get() []Source {
 func getReplyNumber(v2exURL string) int {
 	URL, err := url.Parse(v2exURL)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 		return 0
 	}
 	fragment := URL.Fragment
 	countString := strings.TrimLeft(fragment, "reply")
 	count, err := strconv.Atoi(countString)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 		return 0
 	}
 	return count

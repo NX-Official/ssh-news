@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/charmbracelet/bubbles/list"
+	"github.com/charmbracelet/ssh"
 	"regexp"
 	"ssh-news/provider"
 )
@@ -30,6 +31,11 @@ type model struct {
 	sources  list.Model
 	news     map[string]list.Model
 	selected int
+	session  ssh.Session
+
+	//isCopiedNews    bool
+	//copiedNewsName  string
+	//copiedNewsValue list.Model
 }
 
 const (
@@ -37,10 +43,8 @@ const (
 	selectedNews
 )
 
-var m model
-
-func UpdateModel(sources []provider.Source) {
-	var newModel model
+func newModel(sources []provider.Source, session ssh.Session) model {
+	var m model
 	var sourcesItems []list.Item
 	var newsItems = map[string][]list.Item{}
 
@@ -52,17 +56,32 @@ func UpdateModel(sources []provider.Source) {
 		}
 	}
 
-	newModel.sources = list.New(sourcesItems, list.DefaultDelegate{
+	m.sources = list.New(sourcesItems, list.DefaultDelegate{
 		ShowDescription: false,
 		Styles:          list.NewDefaultItemStyles(),
 	}, 20, 20)
 
-	newModel.news = map[string]list.Model{}
+	m.news = map[string]list.Model{}
 	for k, v := range newsItems {
-		newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 0, 0)
+		m.news[k] = list.New(v, list.NewDefaultDelegate(), 0, 0)
 	}
-	m = newModel
 
+	m.sources.SetFilteringEnabled(false)
+	m.sources.SetShowTitle(false)
+	m.sources.SetShowStatusBar(false)
+	m.sources.SetShowHelp(false)
+
+	for k := range m.news {
+		v := m.news[k]
+		v.SetShowTitle(false)
+		v.SetShowHelp(false)
+		v.SetFilteringEnabled(false)
+		v.SetShowStatusBar(false)
+		m.news[k] = v
+	}
+
+	m.session = session
+	return m
 }
 
 func removeControlChars(input string) string {

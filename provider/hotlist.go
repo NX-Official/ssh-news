@@ -3,7 +3,6 @@ package provider
 import (
 	"errors"
 	"github.com/parnurzeal/gorequest"
-	"log"
 	"time"
 )
 
@@ -40,10 +39,10 @@ func (l *HotList) Fetch() error {
 	request := gorequest.New()
 	_, _, errs := request.Get(l.URL).EndStruct(hotListResp)
 	if len(errs) > 0 {
-		log.Println(errs)
+		// log.Println(errs)
 		return errors.Join(errs...)
 	}
-
+	var tmpSources []Source
 	for _, source := range hotListResp.Data {
 		var news []News
 		for _, item := range source.Data {
@@ -54,13 +53,15 @@ func (l *HotList) Fetch() error {
 				URL:   item.Url,
 			})
 		}
-		l.Sources = append(l.Sources, Source{
+		tmpSources = append(tmpSources, Source{
 			Name:       source.Name,
 			SubTitle:   source.Subtitle,
 			UpdateTime: parseTime(source.UpdateTime),
 			News:       news,
 		})
 	}
+
+	l.Sources = tmpSources
 
 	return nil
 }
@@ -72,7 +73,7 @@ func (l *HotList) Get() []Source {
 func parseTime(timeStr string) time.Time {
 	t, err := time.Parse(time.DateTime, timeStr)
 	if err != nil {
-		log.Println(err)
+		// log.Println(err)
 		return time.Time{}
 	}
 	return t
