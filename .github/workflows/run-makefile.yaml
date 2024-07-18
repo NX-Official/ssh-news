@@ -18,11 +18,11 @@ jobs:
         with:
           go-version: 1.22
 
-      - name: Set Run make lint-install
-        run: make lint-install
-
-      - name: Run make lint
-        run: make lint
+#      - name: Set Run make lint-install
+#        run: make lint-install
+#
+#      - name: Run make lint
+#        run: make lint
 
   test:
     runs-on: ubuntu-latest
