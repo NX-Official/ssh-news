@@ -27,6 +27,7 @@ type News struct {
 }
 
 var providers = []DataProvider{
+	NewV2EX(),
 	NewHotList(),
 }
 
