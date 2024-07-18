@@ -1,0 +1,39 @@
+name: Run MakeFile
+
+on:
+  workflow_call:
+
+env:
+  TESTCONTAINERS_RYUK_DISABLED: true
+
+jobs:
+  lint:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+      - name: Set Run make lint-install
+        run: make lint-install
+
+      - name: Run make lint
+        run: make lint
+
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the code
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: 1.22
+
+#      - name: Run make test
+#        run: make test
