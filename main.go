@@ -5,7 +5,7 @@ import (
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
-	"os"
+	"log"
 	"os/exec"
 	"runtime"
 	"ssh-news/provider"
@@ -89,14 +89,11 @@ func (m model) View() string {
 }
 
 func main() {
-	if len(os.Getenv("DEBUG")) > 0 {
-		f, err := tea.LogToFile("debug.log", "debug")
-		if err != nil {
-			fmt.Println("fatal:", err)
-			os.Exit(1)
-		}
-		defer f.Close()
+	f, err := tea.LogToFile("debug.log", "debug")
+	if err != nil {
+		log.Fatal(err)
 	}
+	defer f.Close()
 
 	provider.Fetch()
 	UpdateModel(provider.Get())
@@ -119,8 +116,7 @@ func main() {
 	p := tea.NewProgram(m, tea.WithAltScreen())
 
 	if _, err := p.Run(); err != nil {
-		fmt.Println("Error running program:", err)
-		os.Exit(1)
+		log.Fatal("Error running program:", err)
 	}
 }
 
@@ -137,6 +133,6 @@ func openBrowser(url string) {
 		err = fmt.Errorf("unsupported platform")
 	}
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/mmcdole/gofeed"
 	"github.com/parnurzeal/gorequest"
+	"log"
 	"net/url"
 	"strconv"
 	"strings"
@@ -90,14 +91,14 @@ func (v *V2EX) Get() []Source {
 func getReplyNumber(v2exURL string) int {
 	URL, err := url.Parse(v2exURL)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 		return 0
 	}
 	fragment := URL.Fragment
 	countString := strings.TrimLeft(fragment, "reply")
 	count, err := strconv.Atoi(countString)
 	if err != nil {
-		panic(err)
+		log.Println(err)
 		return 0
 	}
 	return count
