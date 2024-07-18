@@ -123,6 +123,15 @@ var (
 )
 
 func main() {
+	if os.Getenv("DEBUG") != "" {
+		file, err := os.OpenFile("debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+		if err != nil {
+			log.Error("Could not open log file", "error", err)
+		} else {
+			log.SetOutput(file)
+		}
+	}
+
 	cronFetch()
 
 	s, err := wish.NewServer(
