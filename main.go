@@ -70,16 +70,11 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "left":
 			if m.news[m.sources.SelectedItem().(sourcesItem).Title()].Paginator.Page == 0 {
 				m.selected = selectedSources
-
-				//selectedSourcesIdx := m.sources.Index()
-				//newM := newModel(provider.Get(), m.session)
-				//m.news = newM.news
-				//m.sources = newM.sources
-				//if m.isCopiedNews == true {
-				//	log.Info("restore news", "name", m.copiedNewsName)
-				//	m.isCopiedNews = false
-				//	m.news[m.copiedNewsName] = m.copiedNewsValue
-				//}
+				selectedSourcesIdx := m.sources.Index()
+				newM := newModel(provider.Get(), m.session)
+				m.news = newM.news
+				m.sources = newM.sources
+				m.sources.Select(selectedSourcesIdx)
 			}
 		case "right":
 			if m.selected == selectedSources {
@@ -88,12 +83,13 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		case "enter":
 			if m.selected == selectedNews {
-				//if m.isCopiedNews == false {
-				//	m.isCopiedNews = true
-				//	m.copiedNewsName =
-				//	m.copiedNewsValue =
-				//	log.Info("copy news", "name", m.copiedNewsName)
-				//}
+				if m.isCopiedNews == false {
+					m.isCopiedNews = true
+					m.copiedNewsName = m.sources.SelectedItem().(sourcesItem).Title()
+					m.copiedNewsValue = m.news[m.sources.SelectedItem().(sourcesItem).Title()]
+					//m.copiedNewsIdx = m.news[m.sources.SelectedItem().(sourcesItem).Title()].Index()
+					log.Info("copy news", "name", m.copiedNewsName)
+				}
 
 				news := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
 				selected := news.SelectedItem().(newsItem)

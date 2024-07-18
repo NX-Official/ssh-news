@@ -33,9 +33,10 @@ type model struct {
 	selected int
 	session  ssh.Session
 
-	//isCopiedNews    bool
-	//copiedNewsName  string
-	//copiedNewsValue list.Model
+	isCopiedNews    bool
+	copiedNewsName  string
+	copiedNewsValue list.Model
+	copiedNewsIdx   int
 }
 
 const (
