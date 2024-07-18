@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/charmbracelet/bubbles/list"
+	"ssh-news/provider"
 )
 
 type sourcesItem struct {
@@ -37,27 +38,47 @@ const (
 
 var m model
 
-func UpdateModel() {
+func UpdateModel(sources []provider.Source) {
 	var newModel model
 	var sourcesItems []list.Item
 	var newsItems = map[string][]list.Item{}
 
-	for _, source := range news.Data {
-		sourcesItems = append(sourcesItems, sourcesItem{name: source.Name})
+	for _, source := range sources {
+		sourcesItems = append(sourcesItems, sourcesItem{name: fmt.Sprintf("%s", source.Name)})
 		newsItems[source.Name] = []list.Item{}
-		for _, item := range source.Data {
-			newsItems[source.Name] = append(newsItems[source.Name], newsItem{title: fmt.Sprintf("%d.%s", item.Index, item.Title), desc: item.Hot, url: item.Url})
+		for _, item := range source.News {
+			newsItems[source.Name] = append(newsItems[source.Name], newsItem{title: fmt.Sprintf("%d.%s", item.Index, item.Title), desc: item.Hot, url: item.URL})
 		}
 	}
 
 	newModel.sources = list.New(sourcesItems, list.DefaultDelegate{
 		ShowDescription: false,
 		Styles:          list.NewDefaultItemStyles(),
-	}, 40, 21)
+	}, 20, 20)
 
 	newModel.news = map[string]list.Model{}
 	for k, v := range newsItems {
-		newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 80, 21)
+		newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 0, 0)
 	}
 	m = newModel
+
+	//
+	//for _, source := range news.Data {
+	//	sourcesItems = append(sourcesItems, sourcesItem{name: source.Name})
+	//	newsItems[source.Name] = []list.Item{}
+	//	for _, item := range source.Data {
+	//		newsItems[source.Name] = append(newsItems[source.Name], newsItem{title: fmt.Sprintf("%d.%s", item.Index, item.Title), desc: item.Hot, url: item.Url})
+	//	}
+	//}
+	//
+	//newModel.sources = list.New(sourcesItems, list.DefaultDelegate{
+	//	ShowDescription: false,
+	//	Styles:          list.NewDefaultItemStyles(),
+	//}, 20, 20)
+	//
+	//newModel.news = map[string]list.Model{}
+	//for k, v := range newsItems {
+	//	newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 0, 0)
+	//}
+	//m = newModel
 }

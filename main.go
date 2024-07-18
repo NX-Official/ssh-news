@@ -8,6 +8,7 @@ import (
 	"os"
 	"os/exec"
 	"runtime"
+	"ssh-news/provider"
 )
 
 var currWindowsHeight int
@@ -97,8 +98,8 @@ func main() {
 		defer f.Close()
 	}
 
-	UpdateNews([]byte(rawNews))
-	UpdateModel()
+	provider.Fetch()
+	UpdateModel(provider.Get())
 
 	m.sources.SetFilteringEnabled(false)
 	m.sources.SetShowTitle(false)
