@@ -10,12 +10,44 @@ import (
 	"runtime"
 )
 
+var currWindowsHeight int
+var currWindowsWidth int
+
 func (m model) Init() tea.Cmd {
 	return nil
 }
 
 func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	var cmd tea.Cmd
+	defer func() {
+		switch m.selected {
+		case selectedSources:
+			// Set style of news-selected item to normal
+			delegate := list.NewDefaultDelegate()
+			delegate.SetSpacing(0)
+			delegate.Styles.SelectedTitle = delegate.Styles.NormalTitle
+			delegate.Styles.SelectedDesc = delegate.Styles.NormalDesc
+			selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
+			selectedNews.SetDelegate(delegate)
+			selectedNews.ResetSelected()
+			m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
+
+		case selectedNews:
+			// Set style of news-selected item to default
+			selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
+			delegate := list.NewDefaultDelegate()
+			delegate.SetSpacing(0)
+			selectedNews.SetDelegate(delegate)
+			m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
+		}
+
+		// Set height of news and sources to current window height
+		selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
+		selectedNews.SetHeight(currWindowsHeight)
+		selectedNews.SetWidth(currWindowsWidth - m.sources.Width())
+		m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
+		m.sources.SetHeight(currWindowsHeight)
+	}()
 
 	switch msg := msg.(type) {
 	case tea.KeyMsg:
@@ -23,59 +55,48 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "q", "ctrl+c":
 			return m, tea.Quit
 		case "left":
-			m.selected = 0
+			if m.news[m.sources.SelectedItem().(sourcesItem).Title()].Paginator.Page == 0 {
+				m.selected = 0
+			}
 		case "right":
-			m.selected = 1
+			if m.selected == 0 {
+				m.selected = 1
+				return m, cmd
+			}
 		case "enter":
 			if m.selected == 1 {
 				openBrowser(m.news[m.sources.SelectedItem().(sourcesItem).Title()].SelectedItem().(newsItem).url)
 			}
 		}
-
 	case tea.WindowSizeMsg:
-		selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
-		selectedNews.SetHeight(msg.Height)
-		m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
-		m.sources.SetHeight(msg.Height)
+		currWindowsHeight = msg.Height
+		currWindowsWidth = msg.Width
 	}
 
-	styles := list.NewDefaultItemStyles()
-	styles.SelectedTitle = selectedTitleStyle
-	styles.SelectedDesc = selectedDescStyle
-
-	if m.selected == 0 {
-		m.sources.SetDelegate(list.DefaultDelegate{
-			ShowDescription: false,
-			Styles:          styles,
-		})
-		selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
-		selectedNews.SetDelegate(list.NewDefaultDelegate())
-		m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
+	// pass the message to the selected model
+	switch m.selected {
+	case selectedSources:
 		m.sources, cmd = m.sources.Update(msg)
-	} else {
+	case selectedNews:
 		m.news[m.sources.SelectedItem().(sourcesItem).Title()], cmd = m.news[m.sources.SelectedItem().(sourcesItem).Title()].Update(msg)
-		m.sources.SetDelegate(list.DefaultDelegate{
-			ShowDescription: false,
-			Styles:          list.NewDefaultItemStyles(),
-		})
-		selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
-
-		delegate := list.NewDefaultDelegate()
-		delegate.Styles = styles
-
-		selectedNews.SetDelegate(delegate)
-		m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
-
 	}
 	return m, cmd
 }
 
 func (m model) View() string {
-
 	return lipgloss.JoinHorizontal(lipgloss.Left, m.sources.View(), m.news[m.sources.SelectedItem().(sourcesItem).Title()].View())
 }
 
 func main() {
+	if len(os.Getenv("DEBUG")) > 0 {
+		f, err := tea.LogToFile("debug.log", "debug")
+		if err != nil {
+			fmt.Println("fatal:", err)
+			os.Exit(1)
+		}
+		defer f.Close()
+	}
+
 	UpdateNews([]byte(rawNews))
 	UpdateModel()
 
@@ -89,6 +110,8 @@ func main() {
 		v.SetShowTitle(false)
 		v.SetShowHelp(false)
 		v.SetFilteringEnabled(false)
+		v.SetShowStatusBar(false)
+
 		m.news[k] = v
 	}
 

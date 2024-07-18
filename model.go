@@ -1,14 +1,9 @@
 package main
 
 import (
+	"fmt"
 	"github.com/charmbracelet/bubbles/list"
-	"github.com/charmbracelet/lipgloss"
 )
-
-var selectedTitleStyle = lipgloss.NewStyle().Inherit(list.NewDefaultItemStyles().
-	SelectedTitle).Background(lipgloss.Color("250"))
-var selectedDescStyle = lipgloss.NewStyle().Inherit(list.NewDefaultItemStyles().
-	SelectedDesc).Background(lipgloss.Color("250"))
 
 type sourcesItem struct {
 	name string
@@ -35,6 +30,11 @@ type model struct {
 	selected int
 }
 
+const (
+	selectedSources = iota
+	selectedNews
+)
+
 var m model
 
 func UpdateModel() {
@@ -46,18 +46,18 @@ func UpdateModel() {
 		sourcesItems = append(sourcesItems, sourcesItem{name: source.Name})
 		newsItems[source.Name] = []list.Item{}
 		for _, item := range source.Data {
-			newsItems[source.Name] = append(newsItems[source.Name], newsItem{title: item.Title, desc: item.Hot, url: item.Url})
+			newsItems[source.Name] = append(newsItems[source.Name], newsItem{title: fmt.Sprintf("%d.%s", item.Index, item.Title), desc: item.Hot, url: item.Url})
 		}
 	}
 
 	newModel.sources = list.New(sourcesItems, list.DefaultDelegate{
 		ShowDescription: false,
 		Styles:          list.NewDefaultItemStyles(),
-	}, 40, 20)
+	}, 40, 21)
 
 	newModel.news = map[string]list.Model{}
 	for k, v := range newsItems {
-		newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 100, 50)
+		newModel.news[k] = list.New(v, list.NewDefaultDelegate(), 80, 21)
 	}
 	m = newModel
 }
