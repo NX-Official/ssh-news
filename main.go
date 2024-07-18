@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"errors"
-	"fmt"
 	"github.com/charmbracelet/bubbles/list"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
@@ -15,16 +14,11 @@ import (
 	"github.com/muesli/termenv"
 	"net"
 	"os"
-	"os/exec"
 	"os/signal"
-	"runtime"
 	"ssh-news/provider"
 	"syscall"
 	"time"
 )
-
-var currWindowsHeight int
-var currWindowsWidth int
 
 func (m model) Init() tea.Cmd {
 	return nil
@@ -56,10 +50,10 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 
 		// Set height of news and sources to current window height
 		selectedNews := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
-		selectedNews.SetHeight(currWindowsHeight)
-		selectedNews.SetWidth(currWindowsWidth)
+		selectedNews.SetHeight(m.currWindowsHeight)
+		selectedNews.SetWidth(m.currWindowsWidth)
 		m.news[m.sources.SelectedItem().(sourcesItem).Title()] = selectedNews
-		m.sources.SetHeight(currWindowsHeight)
+		m.sources.SetHeight(m.currWindowsHeight)
 	}()
 
 	switch msg := msg.(type) {
@@ -81,15 +75,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 				m.selected = selectedNews
 				return m, cmd
 			}
-		case "enter":
+		case "enter", " ":
 			if m.selected == selectedNews {
-				if m.isCopiedNews == false {
-					m.isCopiedNews = true
-					m.copiedNewsName = m.sources.SelectedItem().(sourcesItem).Title()
-					m.copiedNewsValue = m.news[m.sources.SelectedItem().(sourcesItem).Title()]
-					//m.copiedNewsIdx = m.news[m.sources.SelectedItem().(sourcesItem).Title()].Index()
-					log.Info("copy news", "name", m.copiedNewsName)
-				}
 
 				news := m.news[m.sources.SelectedItem().(sourcesItem).Title()]
 				selected := news.SelectedItem().(newsItem)
@@ -102,8 +89,8 @@ func (m model) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 			}
 		}
 	case tea.WindowSizeMsg:
-		currWindowsHeight = msg.Height
-		currWindowsWidth = msg.Width
+		m.currWindowsHeight = msg.Height
+		m.currWindowsWidth = msg.Width
 	}
 
 	// pass the message to the selected model
@@ -169,23 +156,6 @@ func main() {
 
 }
 
-func openBrowser(url string) {
-	var err error
-	switch runtime.GOOS {
-	case "linux":
-		err = exec.Command("xdg-open", url).Start()
-	case "windows":
-		err = exec.Command("rundll32", "url.dll,FileProtocolHandler", url).Start()
-	case "darwin":
-		err = exec.Command("open", url).Start()
-	default:
-		err = fmt.Errorf("unsupported platform")
-	}
-	if err != nil {
-		//// log.Println(err)
-	}
-}
-
 func copyURL(url string, s ssh.Session) {
 	bubbletea.MakeRenderer(s).Output().Copy(url)
 }
@@ -196,12 +166,6 @@ func myCustomBubbleteaMiddleware() wish.Middleware {
 		return p
 	}
 	teaHandler := func(s ssh.Session) *tea.Program {
-		//pty, _, active := s.Pty()
-		//if !active {
-		//	wish.Fatalln(s, "no active terminal, skipping")
-		//	return nil
-
-		//render:= bubbletea.MakeRenderer(s)
 		m := newModel(provider.Get(), s)
 		return newProg(m, append(bubbletea.MakeOptions(s), tea.WithAltScreen())...)
 	}
