@@ -1,6 +1,6 @@
-FROM golang:latest as go-build-stage
+FROM golang:latest AS go-build-stage
 
-ENV GOPROXY https://goproxy.cn,direct
+ENV GOPROXY=https://goproxy.cn,direct
 
 WORKDIR /go/src/app
 
