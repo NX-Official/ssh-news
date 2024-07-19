@@ -39,7 +39,6 @@ func (l *HotList) Fetch() error {
 	request := gorequest.New()
 	_, _, errs := request.Get(l.URL).EndStruct(hotListResp)
 	if len(errs) > 0 {
-		// log.Println(errs)
 		return errors.Join(errs...)
 	}
 	var tmpSources []Source

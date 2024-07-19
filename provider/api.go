@@ -1,6 +1,7 @@
 package provider
 
 import (
+	"github.com/charmbracelet/log"
 	"sync"
 	"time"
 )
@@ -37,7 +38,7 @@ func Fetch() {
 	for _, p := range providers {
 		err := p.Fetch()
 		if err != nil {
-			// log.Println(err)
+			log.Error(err)
 		}
 		newSources = append(newSources, p.Get()...)
 	}

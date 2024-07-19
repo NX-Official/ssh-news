@@ -1,0 +1,28 @@
+version: "3"
+
+services:
+  app:
+    build:
+        context: .
+        dockerfile: Dockerfile
+    container_name: ssh-news-app
+    tty: true
+    volumes:
+      - ./logs:/app/logs
+      - ./.ssh:/app/.ssh
+    environment:
+#        - LOG_FILE_PATH=/app/logs  todo support log file path
+        - LOG_FILE=1
+        - PORT=32000
+    ports:
+      - "32000:32000"
+    restart: always
+
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: ssh-news-watchtower
+    command: --interval 5
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock # 需要将 Docker 的 sock 映射进去以控制 Docker
+    restart: always

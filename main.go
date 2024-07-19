@@ -119,12 +119,13 @@ func init() {
 
 var (
 	host = cmp.Or(os.Getenv("HOST"), "0.0.0.0")
-	port = cmp.Or(os.Getenv("PORT"), "23234")
+	port = cmp.Or(os.Getenv("PORT"), "32000")
 )
 
 func main() {
-	if os.Getenv("DEBUG") != "" {
-		file, err := os.OpenFile("debug.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
+	if os.Getenv("LOG_FILE") != "" {
+		os.MkdirAll("logs", 0755)
+		file, err := os.OpenFile("logs/logs.log", os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0666)
 		if err != nil {
 			log.Error("Could not open log file", "error", err)
 		} else {

@@ -8,8 +8,10 @@ COPY . .
 
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
-FROM alpine:latest
-RUN apk update && apk add bash bash-completion
+FROM ubuntu:latest
+RUN apt-get update && apt-get install -y bash bash-completion openssl ca-certificates
+RUN update-ca-certificates
+ENV TERM xterm-256color
 
 WORKDIR /app
 
