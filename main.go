@@ -178,6 +178,7 @@ func myCustomBubbleteaMiddleware() wish.Middleware {
 	}
 	teaHandler := func(s ssh.Session) *tea.Program {
 		m := newModel(provider.Get(), s)
+		bubbletea.MakeRenderer(s).Output().SetWindowTitle("SSH News")
 		return newProg(m, append(bubbletea.MakeOptions(s), tea.WithAltScreen())...)
 	}
 	return bubbletea.MiddlewareWithProgramHandler(teaHandler, termenv.ANSI256)
