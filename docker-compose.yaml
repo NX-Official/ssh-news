@@ -13,7 +13,7 @@ services:
     environment:
 #        - LOG_FILE_PATH=/app/logs  todo support log file path
         - LOG_FILE=1
-        - PORT=22
+        - PORT=32000
     ports:
-      - "22:22"
+      - "32000:32000"
     restart: always
