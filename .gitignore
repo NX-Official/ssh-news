@@ -4,3 +4,4 @@
 logs
 *.log
 .ssh
+dist/
