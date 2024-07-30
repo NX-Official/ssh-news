@@ -13,3 +13,8 @@ jobs:
     needs: [ run-makefile ]
     uses: ./.github/workflows/docker-publish.yaml
     secrets: inherit
+
+  release:
+    needs: [ run-makefile ]
+    uses: ./.github/workflows/run-goreleaser.yaml
+    secrets: inherit

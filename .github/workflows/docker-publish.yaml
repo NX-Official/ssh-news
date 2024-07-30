@@ -9,6 +9,8 @@ jobs:
     steps:
       - name: Check out the code
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -16,7 +18,6 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      # 记得在 GitHub 仓库的 Secrets 中添加 DOCKER_USERNAME DOCKER_PASSWORD DOCKER_REPOSITORY 三个环境变量
       - name: Log in to Docker Hub
         uses: docker/login-action@v3
         with:
@@ -33,8 +34,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          # 使用 commit hash 作为镜像 tag
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:latest
             ${{ secrets.DOCKER_USERNAME }}/${{ secrets.DOCKER_REPOSITORY }}:${{ env.SHORT_SHA }}
-          platforms: linux/amd64,linux/arm64 # 为多个架构编译，如果你确定只需要其中一种，可以仅保留一种
+          platforms: linux/amd64,linux/arm64
