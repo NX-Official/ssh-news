@@ -14,6 +14,7 @@ services:
 #        - LOG_FILE_PATH=/app/logs  todo support log file path
         - LOG_FILE=1
         - PORT=32000
+        - TZ=Asia/Shanghai
     ports:
       - "32000:32000"
     restart: always
