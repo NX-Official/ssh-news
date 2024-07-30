@@ -2,19 +2,12 @@ name: CI Pipeline
 
 on:
   push:
-    branches:
-      - main # 指定触发事件的分支，这里是 main 分支
 
 jobs:
-  run-makefile:
-    uses: ./.github/workflows/run-makefile.yaml
+  integration:
+    uses: ./.github/workflows/integration.yaml
 
   build-and-push:
-    needs: [ run-makefile ]
-    uses: ./.github/workflows/docker-publish.yaml
-    secrets: inherit
-
-  release:
-    needs: [ run-makefile ]
-    uses: ./.github/workflows/run-goreleaser.yaml
+    needs: [ integration ]
+    uses: ./.github/workflows/delivery.yaml
     secrets: inherit

@@ -1,4 +1,4 @@
-name: Run MakeFile
+name: Integration
 
 on:
   workflow_call:
